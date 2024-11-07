@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import csv
-import os
+import os  # To read environment variables
 
 app = Flask(__name__)
 
-# Define the file path relative to the project root directory
-filename = os.path.join(os.path.dirname(__file__), 'college_branches_cutoff')
+filename = 'college_branches_cutoff.csv'
 
 def find_top_3_colleges(jee_rank, filename):
     eligible_options = []
@@ -28,22 +27,23 @@ def find_top_3_colleges(jee_rank, filename):
 @app.route('/api/colleges', methods=['POST'])
 def api_colleges():
     try:
-        # Parse JSON request data
         data = request.get_json()
         jee_rank = int(data['jee_rank'])
-        top_3_colleges = find_top_3_colleges(jee_rank, filename=filename)
-        
+        top_3_colleges = find_top_3_colleges(jee_rank, filename='college_branches_cutoff.csv')
+
         if top_3_colleges is None:
             return jsonify({"error": "File not found"}), 404
 
-        # Prepare response
         response = [
             {"college": college, "branch": branch, "cutoff_rank": cutoff_rank}
             for college, branch, cutoff_rank in top_3_colleges
         ]
         return jsonify(response), 200
+
     except (ValueError, KeyError):
         return jsonify({"error": "Invalid input"}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Ensure Flask uses the correct port set by Render (or default to port 5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
