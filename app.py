@@ -25,7 +25,7 @@ def find_top_3_colleges(jee_rank, filename):
     except FileNotFoundError:
         return None
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
     return "Welcome to the College Selector API!"
 
@@ -50,5 +50,5 @@ def api_colleges():
 
 if __name__ == '__main__':
     # Ensure Flask uses the correct port set by Render (or default to port 5000)
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
