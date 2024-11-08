@@ -1,15 +1,19 @@
-from flask import Flask, render_template, request, jsonify
-import csv
-import os  # To read environment variables
+from flask import Flask, render_template, request, jsonify, send_from_directory
+import os
+import csv  # For CSV reading
 
 app = Flask(__name__)
 
-# Use the current directory path to locate the CSV file
-filename = os.path.join(os.path.dirname(__file__), 'college_branches_cutoff.csv')
+# Path to the static folder
+static_folder = os.path.join(app.root_path, 'static')
+
+# New filename pointing to the CSV inside the static folder
+filename = os.path.join(static_folder, 'college_branches_cutoff.csv')
 
 def find_top_3_colleges(jee_rank, filename):
     eligible_options = []
     try:
+        # Open the CSV file from the static folder
         with open(filename, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -25,7 +29,7 @@ def find_top_3_colleges(jee_rank, filename):
     except FileNotFoundError:
         return None
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home():
     return "Welcome to the College Selector API!"
 
@@ -48,7 +52,14 @@ def api_colleges():
     except (ValueError, KeyError):
         return jsonify({"error": "Invalid input"}), 400
 
-if __name__ == '__main__':
-    # Ensure Flask uses the correct port set by Render (or default to port 5000)
-     app.run(debug=True)
+# Optional: Add a route to test accessing the static CSV file directly
+@app.route('/test-csv')
+def test_csv():
+    try:
+        return send_from_directory(static_folder, 'college_branches_cutoff.csv')
+    except Exception as e:
+        return f"Error: {str(e)}", 500
 
+if __name__ == '__main__':
+    # Run the app on port 5000 (or other port if needed)
+    app.run(debug=True)
