@@ -4,7 +4,8 @@ import os  # To read environment variables
 
 app = Flask(__name__)
 
-filename = 'college_branches_cutoff.csv'
+# Use the current directory path to locate the CSV file
+filename = os.path.join(os.path.dirname(__file__), 'college_branches_cutoff.csv')
 
 def find_top_3_colleges(jee_rank, filename):
     eligible_options = []
@@ -24,12 +25,16 @@ def find_top_3_colleges(jee_rank, filename):
     except FileNotFoundError:
         return None
 
+@app.route('/')
+def home():
+    return "Welcome to the College Selector API!"
+
 @app.route('/api/colleges', methods=['POST'])
 def api_colleges():
     try:
         data = request.get_json()
         jee_rank = int(data['jee_rank'])
-        top_3_colleges = find_top_3_colleges(jee_rank, filename='college_branches_cutoff.csv')
+        top_3_colleges = find_top_3_colleges(jee_rank, filename)
 
         if top_3_colleges is None:
             return jsonify({"error": "File not found"}), 404
@@ -45,5 +50,5 @@ def api_colleges():
 
 if __name__ == '__main__':
     # Ensure Flask uses the correct port set by Render (or default to port 5000)
-    port = int(os.environ.get('PORT', 10000))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
