@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_cors import CORS  # Import CORS
 import os
-import csv  # For CSV reading
+import csv
 
 app = Flask(__name__)
+CORS(app, origins=["https://rankbridge.onrender.com"])  # Enable CORS for the frontend URL
 
 # Path to the static folder
 static_folder = os.path.join(app.root_path, 'static')
@@ -13,7 +15,6 @@ filename = os.path.join(static_folder, 'college_branches_cutoff.csv')
 def find_top_3_colleges(jee_rank, filename):
     eligible_options = []
     try:
-        # Open the CSV file from the static folder
         with open(filename, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -61,5 +62,4 @@ def test_csv():
         return f"Error: {str(e)}", 500
 
 if __name__ == '__main__':
-    # Run the app on port 5000 (or other port if needed)
     app.run(debug=True)
